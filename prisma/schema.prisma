@@ -29,3 +29,11 @@ model Workout {
 
   createdAt DateTime @default(now())
 }
+
+model Drill {
+  id          String   @id @default(cuid())
+  name        String
+  category    String
+  description String?
+  createdAt   DateTime @default(now())
+}
