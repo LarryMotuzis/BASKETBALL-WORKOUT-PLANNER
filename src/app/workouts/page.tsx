@@ -1,14 +1,21 @@
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/auth";
 import { createWorkout, deleteWorkout } from "@/actions/workout-actions";
+import { SubmitButton } from "@/app/components/SubmitButton";
+import { DeleteButton } from "@/app/components/DeleteButton";
 
 const inputClass =
   "rounded-lg bg-white/5 border border-white/10 p-3 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-orange-500/50";
 
 export default async function WorkoutsPage() {
+  const session = await auth();
+  const userId = session?.user?.id;
+
   const [players, drills, workouts] = await Promise.all([
-    prisma.player.findMany({ orderBy: { firstName: "asc" } }),
-    prisma.drill.findMany({ orderBy: { name: "asc" } }),
+    prisma.player.findMany({ where: { userId }, orderBy: { firstName: "asc" } }),
+    prisma.drill.findMany({ where: { userId }, orderBy: { name: "asc" } }),
     prisma.workout.findMany({
+      where: { userId },
       include: {
         workoutPlayers: { include: { player: true } },
         workoutDrills: { include: { drill: true }, orderBy: { order: "asc" } },
@@ -134,12 +141,7 @@ export default async function WorkoutsPage() {
               className={`min-h-24 w-full ${inputClass}`}
             />
 
-            <button
-              type="submit"
-              className="rounded-lg bg-orange-500 hover:bg-orange-600 px-5 py-3 text-white font-semibold transition-colors"
-            >
-              Create Workout
-            </button>
+            <SubmitButton label="Create Workout" pendingLabel="Creating..." />
           </form>
         </div>
 
@@ -188,16 +190,10 @@ export default async function WorkoutsPage() {
                       <span className="rounded-full bg-orange-500/15 text-orange-400 px-3 py-1 text-xs font-medium">
                         {workout.focus}
                       </span>
-
-                      <form action={deleteWorkout}>
-                        <input type="hidden" name="id" value={workout.id} />
-                        <button
-                          type="submit"
-                          className="text-xs text-red-400 hover:text-red-300 transition-colors"
-                        >
-                          Delete
-                        </button>
-                      </form>
+                      <DeleteButton
+                        action={deleteWorkout.bind(null, workout.id)}
+                        successMessage="Workout deleted"
+                      />
                     </div>
                   </div>
 

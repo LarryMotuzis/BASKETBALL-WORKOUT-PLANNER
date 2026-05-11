@@ -1,11 +1,17 @@
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/auth";
+import Link from "next/link";
 import { createPlayer, deletePlayer } from "@/actions/player-actions";
+import { SubmitButton } from "@/app/components/SubmitButton";
+import { DeleteButton } from "@/app/components/DeleteButton";
 
 const inputClass =
   "rounded-lg bg-white/5 border border-white/10 p-3 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-orange-500/50";
 
 export default async function PlayersPage() {
+  const session = await auth();
   const players = await prisma.player.findMany({
+    where: { userId: session?.user?.id },
     orderBy: { createdAt: "desc" },
   });
 
@@ -44,12 +50,7 @@ export default async function PlayersPage() {
               placeholder="Position (optional)"
               className={inputClass}
             />
-            <button
-              type="submit"
-              className="w-fit rounded-lg bg-orange-500 hover:bg-orange-600 px-5 py-3 text-white font-semibold transition-colors"
-            >
-              Add Player
-            </button>
+            <SubmitButton label="Add Player" pendingLabel="Adding..." />
           </form>
         </div>
 
@@ -71,23 +72,30 @@ export default async function PlayersPage() {
                   className="flex items-center justify-between rounded-lg border border-white/8 p-4"
                 >
                   <div>
-                    <p className="font-medium text-slate-100">
+                    <Link
+                      href={`/players/${player.id}`}
+                      className="font-medium text-slate-100 hover:text-orange-400 transition-colors"
+                    >
                       {player.firstName} {player.lastName}
-                    </p>
+                    </Link>
                     <p className="text-sm text-slate-500">
                       {player.position || "No position listed"}
                     </p>
                   </div>
 
-                  <form action={deletePlayer}>
-                    <input type="hidden" name="id" value={player.id} />
-                    <button
-                      type="submit"
-                      className="text-xs text-red-400 hover:text-red-300 transition-colors"
+                  <div className="flex items-center gap-4">
+                    <Link
+                      href={`/players/${player.id}`}
+                      className="text-xs text-slate-500 hover:text-slate-300 transition-colors"
                     >
-                      Remove
-                    </button>
-                  </form>
+                      View profile →
+                    </Link>
+                    <DeleteButton
+                      action={deletePlayer.bind(null, player.id)}
+                      label="Remove"
+                      successMessage="Player removed"
+                    />
+                  </div>
                 </div>
               ))
             )}

@@ -1,5 +1,8 @@
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/auth";
 import { createDrill, deleteDrill } from "@/actions/drill-actions";
+import { SubmitButton } from "@/app/components/SubmitButton";
+import { DeleteButton } from "@/app/components/DeleteButton";
 
 const inputClass =
   "rounded-lg bg-white/5 border border-white/10 p-3 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-orange-500/50";
@@ -15,7 +18,9 @@ const categoryColors: Record<string, string> = {
 };
 
 export default async function DrillsPage() {
+  const session = await auth();
   const drills = await prisma.drill.findMany({
+    where: { userId: session?.user?.id },
     orderBy: { createdAt: "desc" },
   });
 
@@ -44,7 +49,6 @@ export default async function DrillsPage() {
                 className={inputClass}
                 required
               />
-
               <select
                 name="category"
                 className="rounded-lg bg-[#0d1117] border border-white/10 p-3 text-slate-100 focus:outline-none focus:border-orange-500/50"
@@ -70,12 +74,7 @@ export default async function DrillsPage() {
               className={`min-h-28 ${inputClass}`}
             />
 
-            <button
-              type="submit"
-              className="w-fit rounded-lg bg-orange-500 hover:bg-orange-600 px-5 py-3 text-white font-semibold transition-colors"
-            >
-              Create Drill
-            </button>
+            <SubmitButton label="Create Drill" pendingLabel="Creating..." />
           </form>
         </div>
 
@@ -115,16 +114,10 @@ export default async function DrillsPage() {
                       >
                         {drill.category}
                       </span>
-
-                      <form action={deleteDrill}>
-                        <input type="hidden" name="id" value={drill.id} />
-                        <button
-                          type="submit"
-                          className="text-xs text-red-400 hover:text-red-300 transition-colors"
-                        >
-                          Delete
-                        </button>
-                      </form>
+                      <DeleteButton
+                        action={deleteDrill.bind(null, drill.id)}
+                        successMessage="Drill deleted"
+                      />
                     </div>
                   </div>
                 </div>
