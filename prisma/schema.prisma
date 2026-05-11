@@ -14,7 +14,7 @@ model Player {
   position  String?
   createdAt DateTime @default(now())
 
-  workouts Workout[]
+  workoutPlayers WorkoutPlayer[]
 }
 
 model Workout {
@@ -24,8 +24,9 @@ model Workout {
   workoutDate DateTime
   notes       String?
 
-  playerId String
-  player   Player @relation(fields: [playerId], references: [id])
+  workoutPlayers WorkoutPlayer[]
+
+  workoutDrills WorkoutDrill[]
 
   createdAt DateTime @default(now())
 }
@@ -36,4 +37,33 @@ model Drill {
   category    String
   description String?
   createdAt   DateTime @default(now())
+
+  workoutDrills WorkoutDrill[]
+}
+
+model WorkoutDrill {
+  id String @id @default(cuid())
+
+  workoutId String
+  workout   Workout @relation(fields: [workoutId], references: [id])
+
+  drillId String
+  drill   Drill  @relation(fields: [drillId], references: [id])
+
+  order Int
+  notes String?
+
+  createdAt DateTime @default(now())
+}
+
+model WorkoutPlayer {
+  id String @id @default(cuid())
+
+  workoutId String
+  workout   Workout @relation(fields: [workoutId], references: [id])
+
+  playerId String
+  player   Player @relation(fields: [playerId], references: [id])
+
+  createdAt DateTime @default(now())
 }

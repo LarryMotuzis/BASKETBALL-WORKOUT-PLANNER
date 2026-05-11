@@ -22,3 +22,15 @@ export async function createPlayer(formData: FormData) {
 
   revalidatePath("/players");
 }
+
+export async function deletePlayer(formData: FormData) {
+  const id = formData.get("id") as string;
+  if (!id) throw new Error("Player ID is required.");
+
+  await prisma.$transaction([
+    prisma.workoutPlayer.deleteMany({ where: { playerId: id } }),
+    prisma.player.delete({ where: { id } }),
+  ]);
+
+  revalidatePath("/players");
+}

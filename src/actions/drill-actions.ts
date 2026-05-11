@@ -22,3 +22,15 @@ export async function createDrill(formData: FormData) {
 
   revalidatePath("/drills");
 }
+
+export async function deleteDrill(formData: FormData) {
+  const id = formData.get("id") as string;
+  if (!id) throw new Error("Drill ID is required.");
+
+  await prisma.$transaction([
+    prisma.workoutDrill.deleteMany({ where: { drillId: id } }),
+    prisma.drill.delete({ where: { id } }),
+  ]);
+
+  revalidatePath("/drills");
+}

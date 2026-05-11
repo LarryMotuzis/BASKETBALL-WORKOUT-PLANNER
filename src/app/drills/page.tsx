@@ -1,24 +1,39 @@
 import { prisma } from "@/lib/prisma";
-import { createDrill } from "@/actions/drill-actions";
+import { createDrill, deleteDrill } from "@/actions/drill-actions";
+
+const inputClass =
+  "rounded-lg bg-white/5 border border-white/10 p-3 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-orange-500/50";
+
+const categoryColors: Record<string, string> = {
+  Shooting: "bg-orange-500/15 text-orange-400",
+  Finishing: "bg-red-500/15 text-red-400",
+  "Ball Handling": "bg-yellow-500/15 text-yellow-400",
+  Footwork: "bg-blue-500/15 text-blue-400",
+  Passing: "bg-green-500/15 text-green-400",
+  Defense: "bg-purple-500/15 text-purple-400",
+  Conditioning: "bg-pink-500/15 text-pink-400",
+};
 
 export default async function DrillsPage() {
   const drills = await prisma.drill.findMany({
-    orderBy: {
-      createdAt: "desc",
-    },
+    orderBy: { createdAt: "desc" },
   });
 
   return (
-    <main className="min-h-screen bg-gray-50 p-8">
+    <main className="min-h-screen bg-[#0a0e1a] p-8">
       <section className="mx-auto max-w-5xl">
-        <h1 className="text-3xl font-bold text-gray-900">Drills</h1>
-
-        <p className="mt-2 text-gray-600">
+        <h1
+          className="text-4xl font-black uppercase tracking-tight text-slate-100"
+          style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
+        >
+          Drills
+        </h1>
+        <p className="mt-2 text-slate-400">
           Build a reusable library of player development drills.
         </p>
 
-        <div className="mt-8 rounded-xl bg-white p-6 shadow-sm">
-          <h2 className="text-xl font-semibold text-gray-900">Create Drill</h2>
+        <div className="mt-8 rounded-xl bg-white/4 border border-white/8 p-6">
+          <h2 className="text-xl font-semibold text-slate-100">Create Drill</h2>
 
           <form action={createDrill} className="mt-4 grid gap-4">
             <div className="grid gap-4 md:grid-cols-2">
@@ -26,13 +41,13 @@ export default async function DrillsPage() {
                 type="text"
                 name="name"
                 placeholder="Drill Name"
-                className="rounded-lg border border-gray-300 p-3 text-gray-900 placeholder:text-gray-400"
+                className={inputClass}
                 required
               />
 
               <select
                 name="category"
-                className="rounded-lg border border-gray-300 p-3 text-gray-900"
+                className="rounded-lg bg-[#0d1117] border border-white/10 p-3 text-slate-100 focus:outline-none focus:border-orange-500/50"
                 required
                 defaultValue=""
               >
@@ -52,44 +67,65 @@ export default async function DrillsPage() {
             <textarea
               name="description"
               placeholder="Description / coaching points"
-              className="min-h-28 rounded-lg border border-gray-300 p-3 text-gray-900 placeholder:text-gray-400"
+              className={`min-h-28 ${inputClass}`}
             />
 
             <button
               type="submit"
-              className="w-fit rounded-lg bg-black px-5 py-3 text-white"
+              className="w-fit rounded-lg bg-orange-500 hover:bg-orange-600 px-5 py-3 text-white font-semibold transition-colors"
             >
               Create Drill
             </button>
           </form>
         </div>
 
-        <div className="mt-8 rounded-xl bg-white p-6 shadow-sm">
-          <h2 className="text-xl font-semibold">Drill Library</h2>
+        <div className="mt-8 rounded-xl bg-white/4 border border-white/8 p-6">
+          <h2 className="text-xl font-semibold text-slate-100">
+            Drill Library{" "}
+            <span className="text-sm font-normal text-slate-500">
+              ({drills.length})
+            </span>
+          </h2>
 
           <div className="mt-4 space-y-3">
             {drills.length === 0 ? (
-              <p className="text-sm text-gray-500">No drills yet.</p>
+              <p className="text-sm text-slate-500">No drills yet.</p>
             ) : (
               drills.map((drill) => (
                 <div
                   key={drill.id}
-                  className="rounded-lg border border-gray-200 p-4"
+                  className="rounded-lg border border-white/8 p-4"
                 >
                   <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <p className="font-medium text-gray-900">{drill.name}</p>
-
+                    <div className="flex-1">
+                      <p className="font-medium text-slate-100">{drill.name}</p>
                       {drill.description && (
-                        <p className="mt-2 text-sm text-gray-600">
+                        <p className="mt-1 text-sm text-slate-400">
                           {drill.description}
                         </p>
                       )}
                     </div>
 
-                    <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700">
-                      {drill.category}
-                    </span>
+                    <div className="flex items-center gap-3 shrink-0">
+                      <span
+                        className={`rounded-full px-3 py-1 text-xs font-medium ${
+                          categoryColors[drill.category] ??
+                          "bg-white/10 text-slate-400"
+                        }`}
+                      >
+                        {drill.category}
+                      </span>
+
+                      <form action={deleteDrill}>
+                        <input type="hidden" name="id" value={drill.id} />
+                        <button
+                          type="submit"
+                          className="text-xs text-red-400 hover:text-red-300 transition-colors"
+                        >
+                          Delete
+                        </button>
+                      </form>
+                    </div>
                   </div>
                 </div>
               ))

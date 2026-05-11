@@ -1,76 +1,93 @@
 import { prisma } from "@/lib/prisma";
-import { createPlayer } from "@/actions/player-actions";
+import { createPlayer, deletePlayer } from "@/actions/player-actions";
+
+const inputClass =
+  "rounded-lg bg-white/5 border border-white/10 p-3 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-orange-500/50";
 
 export default async function PlayersPage() {
   const players = await prisma.player.findMany({
-    orderBy: {
-      createdAt: "desc",
-    },
+    orderBy: { createdAt: "desc" },
   });
 
   return (
-    <main className="min-h-screen bg-gray-50 p-8">
+    <main className="min-h-screen bg-[#0a0e1a] p-8">
       <section className="mx-auto max-w-5xl">
-        <h1 className="text-3xl font-bold text-gray-900">Players</h1>
+        <h1
+          className="text-4xl font-black uppercase tracking-tight text-slate-100"
+          style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
+        >
+          Players
+        </h1>
+        <p className="mt-2 text-slate-400">Create and manage player profiles.</p>
 
-        <p className="mt-2 text-gray-600">Create and manage player profiles.</p>
-        <div className="mt-8 rounded-xl bg-white p-6 shadow-sm">
-          <h2 className="text-xl font-semibold">Create Player</h2>
+        <div className="mt-8 rounded-xl bg-white/4 border border-white/8 p-6">
+          <h2 className="text-xl font-semibold text-slate-100">Add Player</h2>
 
-          <form
-            action={createPlayer}
-            className="mt-4 grid gap-4 md:grid-cols-3"
-          >
+          <form action={createPlayer} className="mt-4 grid gap-4 md:grid-cols-3">
             <input
               type="text"
               name="firstName"
               placeholder="First Name"
-              className="rounded-lg border border-gray-300 p-3"
+              className={inputClass}
               required
             />
-
             <input
               type="text"
               name="lastName"
               placeholder="Last Name"
-              className="rounded-lg border border-gray-300 p-3"
+              className={inputClass}
               required
             />
-
             <input
               type="text"
               name="position"
-              placeholder="Position"
-              className="rounded-lg border border-gray-300 p-3"
+              placeholder="Position (optional)"
+              className={inputClass}
             />
-
             <button
               type="submit"
-              className="rounded-lg bg-black px-4 py-3 text-white"
+              className="w-fit rounded-lg bg-orange-500 hover:bg-orange-600 px-5 py-3 text-white font-semibold transition-colors"
             >
-              Create Player
+              Add Player
             </button>
           </form>
         </div>
-        <div className="mt-8 rounded-xl bg-white p-6 shadow-sm">
-          <h2 className="text-xl font-semibold">Player List</h2>
+
+        <div className="mt-8 rounded-xl bg-white/4 border border-white/8 p-6">
+          <h2 className="text-xl font-semibold text-slate-100">
+            Roster{" "}
+            <span className="text-sm font-normal text-slate-500">
+              ({players.length})
+            </span>
+          </h2>
 
           <div className="mt-4 space-y-3">
             {players.length === 0 ? (
-              <p className="text-sm text-gray-500">No players yet.</p>
+              <p className="text-sm text-slate-500">No players yet.</p>
             ) : (
               players.map((player) => (
                 <div
                   key={player.id}
-                  className="rounded-lg border border-gray-200 p-4"
+                  className="flex items-center justify-between rounded-lg border border-white/8 p-4"
                 >
-                  <p className="font-medium">
-                    {player.firstName} {player.lastName}
-                  </p>
+                  <div>
+                    <p className="font-medium text-slate-100">
+                      {player.firstName} {player.lastName}
+                    </p>
+                    <p className="text-sm text-slate-500">
+                      {player.position || "No position listed"}
+                    </p>
+                  </div>
 
-                  <p className="text-sm text-gray-500">
-                    {player.position || "No position listed"}
-                  </p>
+                  <form action={deletePlayer}>
+                    <input type="hidden" name="id" value={player.id} />
+                    <button
+                      type="submit"
+                      className="text-xs text-red-400 hover:text-red-300 transition-colors"
+                    >
+                      Remove
+                    </button>
+                  </form>
                 </div>
               ))
             )}
