@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { createPlayer, deletePlayer } from "@/actions/player-actions";
 import { SubmitButton } from "@/app/components/SubmitButton";
 import { DeleteButton } from "@/app/components/DeleteButton";
+import { EditPlayerForm } from "@/app/components/EditPlayerForm";
 
 const inputClass =
   "rounded-lg bg-white/5 border border-white/10 p-3 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-orange-500/50";
@@ -65,10 +66,11 @@ export default async function PlayersPage() {
                       )}
                     </p>
                   </div>
-                  <div className="flex items-center gap-4">
-                    <span className="text-xs font-medium text-slate-500 bg-white/5 border border-white/8 px-2.5 py-1 rounded-full">
+                  <div className="flex items-center gap-3 shrink-0">
+                    <span className="text-xs font-medium text-slate-500 bg-white/5 border border-white/8 px-2.5 py-1 rounded-full hidden sm:inline">
                       {player._count.workoutPlayers} sessions
                     </span>
+                    <EditPlayerForm player={player} />
                     <Link href={`/players/${player.id}`} className="text-xs text-slate-500 hover:text-slate-300 transition-colors">
                       View profile →
                     </Link>

@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { createDrill, deleteDrill } from "@/actions/drill-actions";
 import { SubmitButton } from "@/app/components/SubmitButton";
 import { DeleteButton } from "@/app/components/DeleteButton";
+import { EditDrillForm } from "@/app/components/EditDrillForm";
 
 const inputClass =
   "rounded-lg bg-white/5 border border-white/10 p-3 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-orange-500/50";
@@ -72,6 +73,7 @@ export default async function DrillsPage() {
                       <span className={`rounded-full px-3 py-1 text-xs font-medium ${categoryColors[drill.category] ?? "bg-white/10 text-slate-400"}`}>
                         {drill.category}
                       </span>
+                      <EditDrillForm drill={drill} />
                       <DeleteButton action={deleteDrill.bind(null, drill.id)} successMessage="Drill deleted" />
                     </div>
                   </div>

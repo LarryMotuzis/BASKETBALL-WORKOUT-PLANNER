@@ -24,6 +24,25 @@ export async function createPlayer(formData: FormData) {
   revalidatePath("/players");
 }
 
+export async function updatePlayer(id: string, formData: FormData) {
+  const session = await auth();
+  if (!session?.user?.id) redirect("/sign-in");
+
+  const firstName = (formData.get("firstName") as string)?.trim();
+  const lastName = (formData.get("lastName") as string)?.trim();
+  const position = (formData.get("position") as string)?.trim();
+
+  if (!firstName || !lastName) throw new Error("First and last name are required.");
+
+  await prisma.player.update({
+    where: { id, userId: session.user.id },
+    data: { firstName, lastName, position: position || null },
+  });
+
+  revalidatePath("/players");
+  revalidatePath(`/players/${id}`);
+}
+
 export async function deletePlayer(id: string) {
   const session = await auth();
   if (!session?.user?.id) redirect("/sign-in");

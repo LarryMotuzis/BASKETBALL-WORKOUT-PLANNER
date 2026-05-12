@@ -138,9 +138,26 @@ function SortableDrillItem({
   );
 }
 
-export function WorkoutDrillPicker({ drills }: { drills: Drill[] }) {
+interface DefaultDrill extends Drill {
+  duration: number | null;
+  sets: number | null;
+}
+
+export function WorkoutDrillPicker({
+  drills,
+  defaultDrills,
+}: {
+  drills: Drill[];
+  defaultDrills?: DefaultDrill[];
+}) {
   const [search, setSearch] = useState("");
-  const [selected, setSelected] = useState<SelectedDrill[]>([]);
+  const [selected, setSelected] = useState<SelectedDrill[]>(
+    defaultDrills?.map((d) => ({
+      ...d,
+      duration: d.duration?.toString() ?? "",
+      sets: d.sets?.toString() ?? "",
+    })) ?? []
+  );
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 

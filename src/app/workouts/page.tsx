@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
+import Link from "next/link";
 import { createWorkout, deleteWorkout } from "@/actions/workout-actions";
 import { SubmitButton } from "@/app/components/SubmitButton";
 import { DeleteButton } from "@/app/components/DeleteButton";
@@ -92,7 +93,13 @@ export default async function WorkoutsPage() {
                       </p>
                     </div>
                     <div className="flex items-center gap-3 shrink-0">
-                      <span className="rounded-full bg-orange-500/15 text-orange-400 px-3 py-1 text-xs font-medium">{workout.focus}</span>
+                      <span className="rounded-full bg-orange-500/15 text-orange-400 px-3 py-1 text-xs font-medium hidden sm:inline">{workout.focus}</span>
+                      <Link
+                        href={`/workouts/${workout.id}/edit`}
+                        className="text-xs text-slate-500 hover:text-slate-300 transition-colors"
+                      >
+                        Edit
+                      </Link>
                       <DeleteButton action={deleteWorkout.bind(null, workout.id)} successMessage="Workout deleted" />
                     </div>
                   </div>

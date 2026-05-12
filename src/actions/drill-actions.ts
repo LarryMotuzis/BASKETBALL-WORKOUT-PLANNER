@@ -24,6 +24,24 @@ export async function createDrill(formData: FormData) {
   revalidatePath("/drills");
 }
 
+export async function updateDrill(id: string, formData: FormData) {
+  const session = await auth();
+  if (!session?.user?.id) redirect("/sign-in");
+
+  const name = (formData.get("name") as string)?.trim();
+  const category = formData.get("category") as string;
+  const description = (formData.get("description") as string)?.trim();
+
+  if (!name || !category) throw new Error("Name and category are required.");
+
+  await prisma.drill.update({
+    where: { id, userId: session.user.id },
+    data: { name, category, description: description || null },
+  });
+
+  revalidatePath("/drills");
+}
+
 export async function deleteDrill(id: string) {
   const session = await auth();
   if (!session?.user?.id) redirect("/sign-in");
