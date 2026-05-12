@@ -4,6 +4,8 @@ import { createDrill, deleteDrill } from "@/actions/drill-actions";
 import { SubmitButton } from "@/app/components/SubmitButton";
 import { DeleteButton } from "@/app/components/DeleteButton";
 import { EditDrillForm } from "@/app/components/EditDrillForm";
+import { DrillCategoryFilter } from "./DrillCategoryFilter";
+import { Suspense } from "react";
 
 const inputClass =
   "rounded-lg bg-white/5 border border-white/10 p-3 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-orange-500/50";
@@ -18,10 +20,20 @@ const categoryColors: Record<string, string> = {
   Conditioning: "bg-pink-500/15 text-pink-400",
 };
 
-export default async function DrillsPage() {
+export default async function DrillsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
   const session = await auth();
+  const { category } = await searchParams;
+  const activeCategory = typeof category === "string" ? category : null;
+
   const drills = await prisma.drill.findMany({
-    where: { userId: session?.user?.id },
+    where: {
+      userId: session?.user?.id,
+      ...(activeCategory ? { category: activeCategory } : {}),
+    },
     orderBy: { createdAt: "desc" },
   });
 
@@ -55,10 +67,15 @@ export default async function DrillsPage() {
         </div>
 
         <div className="mt-8 rounded-xl bg-white/4 border border-white/8 p-6">
-          <h2 className="text-xl font-semibold text-slate-100">
-            Drill Library <span className="text-sm font-normal text-slate-500">({drills.length})</span>
-          </h2>
-          <div className="mt-4 space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+            <h2 className="text-xl font-semibold text-slate-100">
+              Drill Library <span className="text-sm font-normal text-slate-500">({drills.length})</span>
+            </h2>
+            <Suspense>
+              <DrillCategoryFilter active={activeCategory} />
+            </Suspense>
+          </div>
+          <div className="space-y-3">
             {drills.length === 0 ? (
               <p className="text-sm text-slate-500">No drills yet.</p>
             ) : (
