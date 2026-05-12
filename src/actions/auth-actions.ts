@@ -47,14 +47,6 @@ export async function createAccount(
   }
 }
 
-export async function signInWithGitHub() {
-  await signIn("github", { redirectTo: "/" });
-}
-
-export async function signInWithGoogle() {
-  await signIn("google", { redirectTo: "/" });
-}
-
 export async function signOutAction() {
   await signOut({ redirectTo: "/sign-in" });
 }

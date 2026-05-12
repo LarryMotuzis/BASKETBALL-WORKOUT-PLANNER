@@ -1,7 +1,5 @@
 import NextAuth, { type DefaultSession } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import GitHub from "next-auth/providers/github";
-import Google from "next-auth/providers/google";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
@@ -39,8 +37,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         return valid ? user : null;
       },
     }),
-    GitHub,
-    Google,
   ],
   pages: {
     signIn: "/sign-in",
