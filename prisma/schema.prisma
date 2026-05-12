@@ -116,8 +116,10 @@ model WorkoutDrill {
   drillId String
   drill   Drill   @relation(fields: [drillId], references: [id])
 
-  order Int
-  notes String?
+  order    Int
+  duration Int?
+  sets     Int?
+  notes    String?
 
   createdAt DateTime @default(now())
 }

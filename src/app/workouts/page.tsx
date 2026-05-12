@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { createWorkout, deleteWorkout } from "@/actions/workout-actions";
 import { SubmitButton } from "@/app/components/SubmitButton";
 import { DeleteButton } from "@/app/components/DeleteButton";
+import { WorkoutDrillPicker } from "./WorkoutDrillPicker";
 
 const inputClass =
   "rounded-lg bg-white/5 border border-white/10 p-3 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-orange-500/50";
@@ -62,21 +63,7 @@ export default async function WorkoutsPage() {
 
             <div>
               <h3 className="text-sm font-medium text-slate-300 mb-3">Drills</h3>
-              {drills.length === 0 ? (
-                <p className="text-sm text-slate-500">No drills yet — add some first.</p>
-              ) : (
-                <div className="grid gap-3 md:grid-cols-2">
-                  {drills.map((drill) => (
-                    <label key={drill.id} className="flex items-center gap-3 rounded-lg border border-white/8 p-3 cursor-pointer hover:border-white/15 transition-colors">
-                      <input type="checkbox" name="drillIds" value={drill.id} className="accent-orange-500" />
-                      <div>
-                        <p className="text-sm font-medium text-slate-200">{drill.name}</p>
-                        <p className="text-xs text-slate-500">{drill.category}</p>
-                      </div>
-                    </label>
-                  ))}
-                </div>
-              )}
+              <WorkoutDrillPicker drills={drills} />
             </div>
 
             <textarea name="notes" placeholder="Workout notes (optional)" className={`min-h-24 w-full ${inputClass}`} />
@@ -112,12 +99,19 @@ export default async function WorkoutsPage() {
                   {workout.workoutDrills.length > 0 && (
                     <div className="mt-4">
                       <p className="text-xs font-medium uppercase tracking-wider text-slate-500 mb-2">Drills</p>
-                      <ul className="space-y-1">
+                      <ul className="space-y-1.5">
                         {workout.workoutDrills.map((item) => (
-                          <li key={item.id} className="text-sm text-slate-300 flex items-center gap-2">
-                            <span className="text-slate-600 w-4 text-right">{item.order}.</span>
-                            {item.drill.name}
+                          <li key={item.id} className="text-sm text-slate-300 flex items-center gap-2 flex-wrap">
+                            <span className="text-slate-600 w-4 text-right shrink-0">{item.order}.</span>
+                            <span>{item.drill.name}</span>
                             <span className="text-slate-600 text-xs">{item.drill.category}</span>
+                            {(item.duration || item.sets) && (
+                              <span className="text-xs text-slate-500 flex items-center gap-1.5">
+                                {item.duration && <span>{item.duration} min</span>}
+                                {item.duration && item.sets && <span className="text-slate-700">·</span>}
+                                {item.sets && <span>{item.sets} sets</span>}
+                              </span>
+                            )}
                           </li>
                         ))}
                       </ul>

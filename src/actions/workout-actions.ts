@@ -15,7 +15,9 @@ export async function createWorkout(formData: FormData) {
   const notes = formData.get("notes") as string;
 
   const playerIds = formData.getAll("playerIds") as string[];
-  const drillIds = formData.getAll("drillIds") as string[];
+  const drillsDataRaw = formData.get("drillsData") as string;
+  const drillsData: { id: string; order: number; duration: number | null; sets: number | null }[] =
+    drillsDataRaw ? JSON.parse(drillsDataRaw) : [];
 
   if (!title || !focus || !workoutDate || playerIds.length === 0) {
     throw new Error("Title, focus, date, and at least one player are required.");
@@ -32,9 +34,11 @@ export async function createWorkout(formData: FormData) {
         create: playerIds.map((playerId) => ({ playerId })),
       },
       workoutDrills: {
-        create: drillIds.map((drillId, index) => ({
-          drillId,
-          order: index + 1,
+        create: drillsData.map((d) => ({
+          drillId: d.id,
+          order: d.order,
+          duration: d.duration,
+          sets: d.sets,
         })),
       },
     },
