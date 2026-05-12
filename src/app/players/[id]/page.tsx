@@ -4,6 +4,25 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChartsSection } from "./ChartsSection";
 
+function getWeekStart(date: Date): number {
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  d.setDate(d.getDate() - d.getDay());
+  return d.getTime();
+}
+
+function getCurrentStreak(dates: Date[]): number {
+  if (dates.length === 0) return 0;
+  const weeks = new Set(dates.map((d) => getWeekStart(d)));
+  let streak = 0;
+  let week = getWeekStart(new Date());
+  while (weeks.has(week)) {
+    streak++;
+    week -= 7 * 24 * 60 * 60 * 1000;
+  }
+  return streak;
+}
+
 export default async function PlayerProfilePage({
   params,
 }: {
@@ -12,14 +31,17 @@ export default async function PlayerProfilePage({
   const { id } = await params;
   const session = await auth();
 
-  const player = await prisma.player.findUnique({ where: { id, userId: session?.user?.id } });
-  if (!player) notFound();
+  const [player, workouts, totalUserWorkouts] = await Promise.all([
+    prisma.player.findUnique({ where: { id, userId: session?.user?.id } }),
+    prisma.workout.findMany({
+      where: { workoutPlayers: { some: { playerId: id } } },
+      include: { workoutDrills: { include: { drill: true } } },
+      orderBy: { workoutDate: "desc" },
+    }),
+    prisma.workout.count({ where: { userId: session?.user?.id } }),
+  ]);
 
-  const workouts = await prisma.workout.findMany({
-    where: { workoutPlayers: { some: { playerId: id } } },
-    include: { workoutDrills: { include: { drill: true } } },
-    orderBy: { workoutDate: "desc" },
-  });
+  if (!player) notFound();
 
   // Workouts per month (last 6 months)
   const now = new Date();
@@ -42,16 +64,43 @@ export default async function PlayerProfilePage({
   const categoryCounts: Record<string, number> = {};
   for (const w of workouts) {
     for (const wd of w.workoutDrills) {
-      const cat = wd.drill.category;
-      categoryCounts[cat] = (categoryCounts[cat] ?? 0) + 1;
+      categoryCounts[wd.drill.category] = (categoryCounts[wd.drill.category] ?? 0) + 1;
     }
   }
   const drillsChartData = Object.entries(categoryCounts)
     .sort((a, b) => b[1] - a[1])
     .map(([name, value]) => ({ name, value }));
 
+  // Top drills by frequency
+  const drillCounts: Record<string, { name: string; count: number }> = {};
+  for (const w of workouts) {
+    for (const wd of w.workoutDrills) {
+      const key = wd.drill.id;
+      if (!drillCounts[key]) drillCounts[key] = { name: wd.drill.name, count: 0 };
+      drillCounts[key].count++;
+    }
+  }
+  const topDrills = Object.values(drillCounts)
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5);
+  const maxDrillCount = topDrills[0]?.count ?? 1;
+
   const totalDrillReps = workouts.reduce((sum, w) => sum + w.workoutDrills.length, 0);
   const lastSession = workouts[0]?.workoutDate;
+  const attendanceRate = totalUserWorkouts > 0 ? Math.round((workouts.length / totalUserWorkouts) * 100) : 0;
+  const currentStreak = getCurrentStreak(workouts.map((w) => w.workoutDate));
+
+  const stats = [
+    { label: "Workouts", value: String(workouts.length) },
+    { label: "Attendance", value: `${attendanceRate}%` },
+    { label: "Week Streak", value: String(currentStreak) },
+    {
+      label: "Last Session",
+      value: lastSession
+        ? lastSession.toLocaleDateString("en-US", { month: "short", day: "numeric" })
+        : "—",
+    },
+  ];
 
   return (
     <main className="min-h-screen bg-[#0a0e1a] p-8">
@@ -76,17 +125,8 @@ export default async function PlayerProfilePage({
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-4 mb-8">
-          {[
-            { label: "Total Workouts", value: workouts.length },
-            { label: "Drill Reps", value: totalDrillReps },
-            {
-              label: "Last Session",
-              value: lastSession
-                ? lastSession.toLocaleDateString("en-US", { month: "short", day: "numeric" })
-                : "—",
-            },
-          ].map((stat) => (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          {stats.map((stat) => (
             <div key={stat.label} className="rounded-xl bg-white/4 border border-white/8 p-5">
               <p className="text-3xl font-bold text-slate-100" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
                 {stat.value}
@@ -96,13 +136,61 @@ export default async function PlayerProfilePage({
           ))}
         </div>
 
+        {/* Attendance progress bar */}
+        {totalUserWorkouts > 0 && (
+          <div className="rounded-xl bg-white/4 border border-white/8 p-5 mb-8">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-sm font-medium text-slate-300">Attendance Rate</p>
+              <p className="text-sm font-bold text-slate-100">{workouts.length} / {totalUserWorkouts} sessions</p>
+            </div>
+            <div className="h-2 rounded-full bg-white/8 overflow-hidden">
+              <div
+                className="h-full rounded-full bg-orange-500 transition-all duration-500"
+                style={{ width: `${attendanceRate}%` }}
+              />
+            </div>
+            <p className="mt-2 text-xs text-slate-500">
+              {attendanceRate >= 80
+                ? "Excellent attendance"
+                : attendanceRate >= 60
+                ? "Good attendance"
+                : attendanceRate >= 40
+                ? "Moderate attendance"
+                : "Needs improvement"}
+            </p>
+          </div>
+        )}
+
         <ChartsSection
           workoutsChartData={workoutsChartData}
           drillsChartData={drillsChartData}
           hasWorkouts={workouts.length > 0}
         />
 
-        <div className="rounded-xl bg-white/4 border border-white/8 p-6">
+        {topDrills.length > 0 && (
+          <div className="rounded-xl bg-white/4 border border-white/8 p-6 mt-6">
+            <h2 className="text-xl font-semibold text-slate-100 mb-4">Top Drills</h2>
+            <div className="space-y-3">
+              {topDrills.map((drill) => (
+                <div key={drill.name}>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-sm text-slate-200">{drill.name}</span>
+                    <span className="text-xs text-slate-500">{drill.count}×</span>
+                  </div>
+                  <div className="h-1.5 rounded-full bg-white/8 overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-orange-500/60"
+                      style={{ width: `${Math.round((drill.count / maxDrillCount) * 100)}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+            <p className="mt-3 text-xs text-slate-600">{totalDrillReps} total drill reps across all sessions</p>
+          </div>
+        )}
+
+        <div className="rounded-xl bg-white/4 border border-white/8 p-6 mt-6">
           <h2 className="text-xl font-semibold text-slate-100 mb-4">Session History</h2>
           {workouts.length === 0 ? (
             <p className="text-sm text-slate-500">No sessions yet.</p>

@@ -9,12 +9,20 @@ export default async function HomePage() {
   const oneWeekAgo = new Date();
   oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
-  const [playerCount, workoutCount, drillCount, thisWeekCount] =
+  const [playerCount, workoutCount, drillCount, thisWeekCount, recentWorkouts] =
     await Promise.all([
       prisma.player.count({ where: { userId } }),
       prisma.workout.count({ where: { userId } }),
       prisma.drill.count({ where: { userId } }),
       prisma.workout.count({ where: { userId, workoutDate: { gte: oneWeekAgo } } }),
+      prisma.workout.findMany({
+        where: { userId },
+        include: {
+          workoutPlayers: { include: { player: { select: { firstName: true, lastName: true } } } },
+        },
+        orderBy: { workoutDate: "desc" },
+        take: 4,
+      }),
     ]);
 
   const stats = [
@@ -122,7 +130,7 @@ export default async function HomePage() {
           </Link>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 mb-10">
           <Link href="/workouts" className="inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-600 active:scale-95 text-white text-sm font-bold uppercase tracking-widest px-5 py-2.5 rounded-lg transition-all duration-150" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
             <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14" /></svg>
             New workout
@@ -131,6 +139,40 @@ export default async function HomePage() {
             Add player
           </Link>
         </div>
+
+        {recentWorkouts.length > 0 && (
+          <div>
+            <h2 className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-4">Recent Activity</h2>
+            <div className="space-y-2">
+              {recentWorkouts.map((workout) => (
+                <div key={workout.id} className="flex items-center justify-between rounded-xl bg-white/4 border border-white/8 px-5 py-3.5 hover:bg-white/[0.07] transition-colors">
+                  <div className="flex items-center gap-4 min-w-0">
+                    <div className="shrink-0 text-center">
+                      <p className="text-lg font-bold text-slate-100 leading-none" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
+                        {workout.workoutDate.toLocaleDateString("en-US", { day: "numeric" })}
+                      </p>
+                      <p className="text-[10px] uppercase tracking-wider text-slate-500">
+                        {workout.workoutDate.toLocaleDateString("en-US", { month: "short" })}
+                      </p>
+                    </div>
+                    <div className="w-px h-8 bg-white/8 shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-slate-100 truncate">{workout.title}</p>
+                      {workout.workoutPlayers.length > 0 && (
+                        <p className="text-xs text-slate-500 truncate">
+                          {workout.workoutPlayers.map((wp) => `${wp.player.firstName} ${wp.player.lastName}`).join(", ")}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <span className="shrink-0 ml-4 rounded-full bg-orange-500/15 text-orange-400 px-3 py-1 text-xs font-medium">
+                    {workout.focus}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </section>
     </main>
   );

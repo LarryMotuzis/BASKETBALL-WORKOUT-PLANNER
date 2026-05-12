@@ -12,6 +12,14 @@ export default async function PlayersPage() {
   const session = await auth();
   const players = await prisma.player.findMany({
     where: { userId: session?.user?.id },
+    include: {
+      _count: { select: { workoutPlayers: true } },
+      workoutPlayers: {
+        take: 1,
+        orderBy: { workout: { workoutDate: "desc" } },
+        include: { workout: { select: { workoutDate: true } } },
+      },
+    },
     orderBy: { createdAt: "desc" },
   });
 
@@ -47,9 +55,20 @@ export default async function PlayersPage() {
                     <Link href={`/players/${player.id}`} className="font-medium text-slate-100 hover:text-orange-400 transition-colors">
                       {player.firstName} {player.lastName}
                     </Link>
-                    <p className="text-sm text-slate-500">{player.position || "No position listed"}</p>
+                    <p className="text-sm text-slate-500">
+                      {player.position || "No position listed"}
+                      {player.workoutPlayers[0] && (
+                        <span className="ml-2 text-slate-600">
+                          · Last session{" "}
+                          {player.workoutPlayers[0].workout.workoutDate.toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                        </span>
+                      )}
+                    </p>
                   </div>
                   <div className="flex items-center gap-4">
+                    <span className="text-xs font-medium text-slate-500 bg-white/5 border border-white/8 px-2.5 py-1 rounded-full">
+                      {player._count.workoutPlayers} sessions
+                    </span>
                     <Link href={`/players/${player.id}`} className="text-xs text-slate-500 hover:text-slate-300 transition-colors">
                       View profile →
                     </Link>
