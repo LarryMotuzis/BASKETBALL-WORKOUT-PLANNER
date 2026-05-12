@@ -1,6 +1,6 @@
 # Basketball Workout Planner
 
-A full-stack web app for coaches to plan workouts, manage player rosters, and track development over time. Built as a portfolio project to demonstrate end-to-end product engineering.
+A full-stack web app for coaches to plan workouts, manage player rosters, and track development over time.
 
 **Live demo → [basketball-workout-planner.vercel.app](https://basketball-workout-planner.vercel.app)**
 
