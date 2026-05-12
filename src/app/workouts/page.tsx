@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/auth";
 import { createWorkout, deleteWorkout } from "@/actions/workout-actions";
 import { SubmitButton } from "@/app/components/SubmitButton";
 import { DeleteButton } from "@/app/components/DeleteButton";
@@ -7,10 +8,14 @@ const inputClass =
   "rounded-lg bg-white/5 border border-white/10 p-3 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-orange-500/50";
 
 export default async function WorkoutsPage() {
+  const session = await auth();
+  const userId = session?.user?.id;
+
   const [players, drills, workouts] = await Promise.all([
-    prisma.player.findMany({ orderBy: { firstName: "asc" } }),
-    prisma.drill.findMany({ orderBy: { name: "asc" } }),
+    prisma.player.findMany({ where: { userId }, orderBy: { firstName: "asc" } }),
+    prisma.drill.findMany({ where: { userId }, orderBy: { name: "asc" } }),
     prisma.workout.findMany({
+      where: { userId },
       include: {
         workoutPlayers: { include: { player: true } },
         workoutDrills: { include: { drill: true }, orderBy: { order: "asc" } },

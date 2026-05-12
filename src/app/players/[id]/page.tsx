@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/auth";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChartsSection } from "./ChartsSection";
@@ -9,8 +10,9 @@ export default async function PlayerProfilePage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const session = await auth();
 
-  const player = await prisma.player.findUnique({ where: { id } });
+  const player = await prisma.player.findUnique({ where: { id, userId: session?.user?.id } });
   if (!player) notFound();
 
   const workouts = await prisma.workout.findMany({

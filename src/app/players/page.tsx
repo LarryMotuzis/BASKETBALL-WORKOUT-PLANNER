@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import { auth } from "@/auth";
 import { createPlayer, deletePlayer } from "@/actions/player-actions";
 import { SubmitButton } from "@/app/components/SubmitButton";
 import { DeleteButton } from "@/app/components/DeleteButton";
@@ -8,7 +9,9 @@ const inputClass =
   "rounded-lg bg-white/5 border border-white/10 p-3 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-orange-500/50";
 
 export default async function PlayersPage() {
+  const session = await auth();
   const players = await prisma.player.findMany({
+    where: { userId: session?.user?.id },
     orderBy: { createdAt: "desc" },
   });
 

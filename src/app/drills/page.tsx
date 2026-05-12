@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/auth";
 import { createDrill, deleteDrill } from "@/actions/drill-actions";
 import { SubmitButton } from "@/app/components/SubmitButton";
 import { DeleteButton } from "@/app/components/DeleteButton";
@@ -17,7 +18,11 @@ const categoryColors: Record<string, string> = {
 };
 
 export default async function DrillsPage() {
-  const drills = await prisma.drill.findMany({ orderBy: { createdAt: "desc" } });
+  const session = await auth();
+  const drills = await prisma.drill.findMany({
+    where: { userId: session?.user?.id },
+    orderBy: { createdAt: "desc" },
+  });
 
   return (
     <main className="min-h-screen bg-[#0a0e1a] p-8">

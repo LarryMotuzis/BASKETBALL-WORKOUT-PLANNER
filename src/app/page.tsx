@@ -1,16 +1,20 @@
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/auth";
 import Link from "next/link";
 
 export default async function HomePage() {
+  const session = await auth();
+  const userId = session?.user?.id;
+
   const oneWeekAgo = new Date();
   oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
   const [playerCount, workoutCount, drillCount, thisWeekCount] =
     await Promise.all([
-      prisma.player.count(),
-      prisma.workout.count(),
-      prisma.drill.count(),
-      prisma.workout.count({ where: { workoutDate: { gte: oneWeekAgo } } }),
+      prisma.player.count({ where: { userId } }),
+      prisma.workout.count({ where: { userId } }),
+      prisma.drill.count({ where: { userId } }),
+      prisma.workout.count({ where: { userId, workoutDate: { gte: oneWeekAgo } } }),
     ]);
 
   const stats = [

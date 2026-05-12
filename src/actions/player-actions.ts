@@ -1,9 +1,14 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 export async function createPlayer(formData: FormData) {
+  const session = await auth();
+  if (!session?.user?.id) redirect("/sign-in");
+
   const firstName = formData.get("firstName") as string;
   const lastName = formData.get("lastName") as string;
   const position = formData.get("position") as string;
@@ -13,16 +18,19 @@ export async function createPlayer(formData: FormData) {
   }
 
   await prisma.player.create({
-    data: { firstName, lastName, position },
+    data: { firstName, lastName, position, userId: session.user.id },
   });
 
   revalidatePath("/players");
 }
 
 export async function deletePlayer(id: string) {
+  const session = await auth();
+  if (!session?.user?.id) redirect("/sign-in");
+
   await prisma.$transaction([
     prisma.workoutPlayer.deleteMany({ where: { playerId: id } }),
-    prisma.player.delete({ where: { id } }),
+    prisma.player.delete({ where: { id, userId: session.user.id } }),
   ]);
 
   revalidatePath("/players");

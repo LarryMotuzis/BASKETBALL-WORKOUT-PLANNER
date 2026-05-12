@@ -1,9 +1,14 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 export async function createWorkout(formData: FormData) {
+  const session = await auth();
+  if (!session?.user?.id) redirect("/sign-in");
+
   const title = formData.get("title") as string;
   const focus = formData.get("focus") as string;
   const workoutDate = formData.get("workoutDate") as string;
@@ -22,6 +27,7 @@ export async function createWorkout(formData: FormData) {
       focus,
       workoutDate: new Date(workoutDate),
       notes,
+      userId: session.user.id,
       workoutPlayers: {
         create: playerIds.map((playerId) => ({ playerId })),
       },
@@ -38,10 +44,13 @@ export async function createWorkout(formData: FormData) {
 }
 
 export async function deleteWorkout(id: string) {
+  const session = await auth();
+  if (!session?.user?.id) redirect("/sign-in");
+
   await prisma.$transaction([
     prisma.workoutDrill.deleteMany({ where: { workoutId: id } }),
     prisma.workoutPlayer.deleteMany({ where: { workoutId: id } }),
-    prisma.workout.delete({ where: { id } }),
+    prisma.workout.delete({ where: { id, userId: session.user.id } }),
   ]);
 
   revalidatePath("/workouts");
