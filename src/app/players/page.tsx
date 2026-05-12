@@ -25,7 +25,7 @@ export default async function PlayersPage() {
   });
 
   return (
-    <main className="min-h-screen bg-[#0a0e1a] p-8">
+    <main className="min-h-screen bg-[#0a0e1a] p-4 sm:p-8">
       <section className="mx-auto max-w-5xl">
         <h1 className="text-4xl font-black uppercase tracking-tight text-slate-100" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
           Players

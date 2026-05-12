@@ -33,7 +33,7 @@ export default async function HomePage() {
   ];
 
   return (
-    <main className="min-h-screen bg-[#0a0e1a] p-8 relative overflow-hidden">
+    <main className="min-h-screen bg-[#0a0e1a] p-4 sm:p-8 relative overflow-hidden">
       <div className="absolute inset-0 pointer-events-none opacity-[0.04]">
         <svg className="w-full h-full" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
           <rect x="60" y="40" width="1080" height="720" rx="8" fill="none" stroke="white" strokeWidth="2" />
@@ -67,7 +67,7 @@ export default async function HomePage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-6 mb-8">
+        <div className="grid grid-cols-2 sm:flex sm:items-center sm:gap-6 gap-4 mb-8">
           {stats.map((stat, i, arr) => (
             <div key={stat.label} className="flex items-center gap-6">
               <div>
@@ -78,7 +78,7 @@ export default async function HomePage() {
                   {stat.label}
                 </p>
               </div>
-              {i < arr.length - 1 && <div className="w-px h-8 bg-white/10" />}
+              {i < arr.length - 1 && <div className="w-px h-8 bg-white/10 hidden sm:block" />}
             </div>
           ))}
         </div>

@@ -103,7 +103,7 @@ export default async function PlayerProfilePage({
   ];
 
   return (
-    <main className="min-h-screen bg-[#0a0e1a] p-8">
+    <main className="min-h-screen bg-[#0a0e1a] p-4 sm:p-8">
       <section className="mx-auto max-w-5xl">
         <Link href="/players" className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-300 transition-colors mb-6">
           <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
