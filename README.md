@@ -2,7 +2,7 @@
 
 A full-stack web app for coaches to plan workouts, manage player rosters, and track development over time.
 
-**Live demo → [basketball-workout-planner.vercel.app](https://basketball-workout-planner.vercel.app)**
+**Live demo → [basketball-workout-planner-ilb5.vercel.app](https://basketball-workout-planner-ilb5.vercel.app)**
 
 ---
 
