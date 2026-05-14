@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { updateDrill } from "@/actions/drill-actions";
-import { CATEGORIES, PERSONNEL, CONCEPTS } from "@/app/drills/DrillCategoryFilter";
+import { CATEGORIES, PERSONNEL, CONCEPTS } from "@/app/drills/drill-constants";
 
 interface Drill {
   id: string;

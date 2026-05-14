@@ -4,7 +4,8 @@ import { createDrill, deleteDrill } from "@/actions/drill-actions";
 import { SubmitButton } from "@/app/components/SubmitButton";
 import { DeleteButton } from "@/app/components/DeleteButton";
 import { EditDrillForm } from "@/app/components/EditDrillForm";
-import { DrillFilters, CATEGORIES, PERSONNEL, CONCEPTS } from "./DrillCategoryFilter";
+import { DrillFilters } from "./DrillCategoryFilter";
+import { CATEGORIES, PERSONNEL, CONCEPTS } from "./drill-constants";
 import { Suspense } from "react";
 
 const inputClass =
