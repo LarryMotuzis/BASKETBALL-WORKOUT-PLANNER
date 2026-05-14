@@ -98,6 +98,8 @@ model Drill {
   id          String   @id @default(cuid())
   name        String
   category    String
+  personnel   String?
+  concept     String?
   description String?
   createdAt   DateTime @default(now())
 

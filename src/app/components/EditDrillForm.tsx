@@ -2,21 +2,22 @@
 
 import { useState } from "react";
 import { updateDrill } from "@/actions/drill-actions";
+import { CATEGORIES, PERSONNEL, CONCEPTS } from "@/app/drills/DrillCategoryFilter";
 
 interface Drill {
   id: string;
   name: string;
   category: string;
+  personnel: string | null;
+  concept: string | null;
   description: string | null;
 }
 
 const inputClass =
   "rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-orange-500/50 w-full";
 
-const CATEGORIES = [
-  "Shooting", "Finishing", "Ball Handling",
-  "Footwork", "Passing", "Defense", "Conditioning",
-];
+const selectClass =
+  "rounded-lg bg-[#0d1117] border border-white/10 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-orange-500/50 w-full";
 
 export function EditDrillForm({ drill }: { drill: Drill }) {
   const [editing, setEditing] = useState(false);
@@ -49,13 +50,22 @@ export function EditDrillForm({ drill }: { drill: Drill }) {
           required
           className={inputClass}
         />
-        <select
-          name="category"
-          defaultValue={drill.category}
-          required
-          className="rounded-lg bg-[#0d1117] border border-white/10 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-orange-500/50 w-full"
-        >
+        <select name="category" defaultValue={drill.category} required className={selectClass}>
           {CATEGORIES.map((c) => (
+            <option key={c} value={c}>{c}</option>
+          ))}
+        </select>
+      </div>
+      <div className="grid gap-2 sm:grid-cols-2">
+        <select name="personnel" defaultValue={drill.personnel ?? ""} className={selectClass}>
+          <option value="">Format (optional)</option>
+          {PERSONNEL.map((p) => (
+            <option key={p} value={p}>{p}</option>
+          ))}
+        </select>
+        <select name="concept" defaultValue={drill.concept ?? ""} className={selectClass}>
+          <option value="">Concept (optional)</option>
+          {CONCEPTS.map((c) => (
             <option key={c} value={c}>{c}</option>
           ))}
         </select>

@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 
-const categories = [
+export const CATEGORIES = [
   "Shooting",
   "Finishing",
   "Ball Handling",
@@ -12,45 +12,98 @@ const categories = [
   "Conditioning",
 ];
 
-export function DrillCategoryFilter({ active }: { active: string | null }) {
+export const PERSONNEL = [
+  "1-on-0",
+  "1-on-1",
+  "2-on-1",
+  "2-on-2",
+  "3-on-2",
+  "3-on-3",
+  "5-on-5",
+  "Team",
+];
+
+export const CONCEPTS = [
+  "Ball Screen Read",
+  "DHO Read",
+  "Transition",
+  "Backdoor Cut",
+  "Post Play",
+  "Drive & Kick",
+  "Closeout",
+  "Pick & Pop",
+  "Iso",
+  "Off-Ball Movement",
+];
+
+interface Props {
+  activeCategory: string | null;
+  activePersonnel: string | null;
+  activeConcept: string | null;
+}
+
+function FilterRow({
+  label,
+  items,
+  activeKey,
+  paramKey,
+}: {
+  label: string;
+  items: string[];
+  activeKey: string | null;
+  paramKey: string;
+}) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  function select(category: string | null) {
+  function select(value: string | null) {
     const params = new URLSearchParams(searchParams.toString());
-    if (category) {
-      params.set("category", category);
+    if (value) {
+      params.set(paramKey, value);
     } else {
-      params.delete("category");
+      params.delete(paramKey);
     }
     router.push(`/drills?${params.toString()}`);
   }
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap items-center gap-2">
+      <span className="text-xs font-medium text-slate-500 uppercase tracking-wider w-20 shrink-0">
+        {label}
+      </span>
       <button
         onClick={() => select(null)}
         className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
-          !active
+          !activeKey
             ? "bg-orange-500 text-white"
             : "bg-white/5 border border-white/10 text-slate-400 hover:text-slate-200 hover:border-white/20"
         }`}
       >
         All
       </button>
-      {categories.map((cat) => (
+      {items.map((item) => (
         <button
-          key={cat}
-          onClick={() => select(cat)}
+          key={item}
+          onClick={() => select(item)}
           className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
-            active === cat
+            activeKey === item
               ? "bg-orange-500 text-white"
               : "bg-white/5 border border-white/10 text-slate-400 hover:text-slate-200 hover:border-white/20"
           }`}
         >
-          {cat}
+          {item}
         </button>
       ))}
+    </div>
+  );
+}
+
+export function DrillFilters({ activeCategory, activePersonnel, activeConcept }: Props) {
+  return (
+    <div className="space-y-2">
+      <FilterRow label="Skill" items={CATEGORIES} activeKey={activeCategory} paramKey="category" />
+      <FilterRow label="Format" items={PERSONNEL} activeKey={activePersonnel} paramKey="personnel" />
+      <FilterRow label="Concept" items={CONCEPTS} activeKey={activeConcept} paramKey="concept" />
     </div>
   );
 }
