@@ -81,7 +81,6 @@ model Player {
 
 model Workout {
   id          String   @id @default(cuid())
-  title       String
   focus       String
   workoutDate DateTime
   notes       String?

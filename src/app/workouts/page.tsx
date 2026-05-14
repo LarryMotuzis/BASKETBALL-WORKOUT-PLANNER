@@ -38,10 +38,9 @@ export default async function WorkoutsPage() {
           <h2 className="text-xl font-semibold text-slate-100">Create Workout</h2>
           <form action={createWorkout} className="mt-4 space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
-              <input type="text" name="title" placeholder="Workout Title" className={inputClass} required />
+              <input type="date" name="workoutDate" className={inputClass} required />
               <input type="text" name="focus" placeholder="Focus Area (e.g. Shooting)" className={inputClass} required />
             </div>
-            <input type="date" name="workoutDate" className={inputClass} required />
 
             <div>
               <h3 className="text-sm font-medium text-slate-300 mb-3">Players</h3>
@@ -84,16 +83,21 @@ export default async function WorkoutsPage() {
                 <div key={workout.id} className="rounded-lg border border-white/8 p-5">
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <h3 className="text-lg font-semibold text-slate-100">{workout.title}</h3>
-                      <p className="text-sm text-slate-500 mt-0.5">
+                      <h3 className="text-lg font-semibold text-slate-100">
                         {new Date(workout.workoutDate).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+                      </h3>
+                      <div className="flex flex-wrap items-center gap-2 mt-1.5">
+                        <span className="rounded-full bg-orange-500/15 text-orange-400 px-2.5 py-0.5 text-xs font-medium">
+                          {workout.focus}
+                        </span>
                         {workout.workoutPlayers.length > 0 && (
-                          <> · {workout.workoutPlayers.map((wp) => `${wp.player.firstName} ${wp.player.lastName}`).join(", ")}</>
+                          <span className="text-sm text-slate-500">
+                            {workout.workoutPlayers.map((wp) => `${wp.player.firstName} ${wp.player.lastName}`).join(", ")}
+                          </span>
                         )}
-                      </p>
+                      </div>
                     </div>
                     <div className="flex items-center gap-3 shrink-0">
-                      <span className="rounded-full bg-orange-500/15 text-orange-400 px-3 py-1 text-xs font-medium hidden sm:inline">{workout.focus}</span>
                       <Link
                         href={`/workouts/${workout.id}/edit`}
                         className="text-xs text-slate-500 hover:text-slate-300 transition-colors"

@@ -9,7 +9,6 @@ export async function createWorkout(formData: FormData) {
   const session = await auth();
   if (!session?.user?.id) redirect("/sign-in");
 
-  const title = formData.get("title") as string;
   const focus = formData.get("focus") as string;
   const workoutDate = formData.get("workoutDate") as string;
   const notes = formData.get("notes") as string;
@@ -19,13 +18,12 @@ export async function createWorkout(formData: FormData) {
   const drillsData: { id: string; order: number; duration: number | null; sets: number | null }[] =
     drillsDataRaw ? JSON.parse(drillsDataRaw) : [];
 
-  if (!title || !focus || !workoutDate || playerIds.length === 0) {
-    throw new Error("Title, focus, date, and at least one player are required.");
+  if (!focus || !workoutDate || playerIds.length === 0) {
+    throw new Error("Focus, date, and at least one player are required.");
   }
 
   await prisma.workout.create({
     data: {
-      title,
       focus,
       workoutDate: new Date(workoutDate),
       notes,
@@ -51,7 +49,6 @@ export async function updateWorkout(id: string, formData: FormData) {
   const session = await auth();
   if (!session?.user?.id) redirect("/sign-in");
 
-  const title = formData.get("title") as string;
   const focus = formData.get("focus") as string;
   const workoutDate = formData.get("workoutDate") as string;
   const notes = formData.get("notes") as string;
@@ -60,8 +57,8 @@ export async function updateWorkout(id: string, formData: FormData) {
   const drillsData: { id: string; order: number; duration: number | null; sets: number | null }[] =
     drillsDataRaw ? JSON.parse(drillsDataRaw) : [];
 
-  if (!title || !focus || !workoutDate || playerIds.length === 0) {
-    throw new Error("Title, focus, date, and at least one player are required.");
+  if (!focus || !workoutDate || playerIds.length === 0) {
+    throw new Error("Focus, date, and at least one player are required.");
   }
 
   await prisma.$transaction(async (tx) => {
@@ -70,7 +67,6 @@ export async function updateWorkout(id: string, formData: FormData) {
     await tx.workout.update({
       where: { id, userId: session.user.id },
       data: {
-        title,
         focus,
         workoutDate: new Date(workoutDate),
         notes: notes || null,

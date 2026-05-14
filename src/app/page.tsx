@@ -157,7 +157,7 @@ export default async function HomePage() {
                     </div>
                     <div className="w-px h-8 bg-white/8 shrink-0" />
                     <div className="min-w-0">
-                      <p className="text-sm font-medium text-slate-100 truncate">{workout.title}</p>
+                      <p className="text-sm font-medium text-orange-400 truncate">{workout.focus}</p>
                       {workout.workoutPlayers.length > 0 && (
                         <p className="text-xs text-slate-500 truncate">
                           {workout.workoutPlayers.map((wp) => `${wp.player.firstName} ${wp.player.lastName}`).join(", ")}
@@ -165,9 +165,6 @@ export default async function HomePage() {
                       )}
                     </div>
                   </div>
-                  <span className="shrink-0 ml-4 rounded-full bg-orange-500/15 text-orange-400 px-3 py-1 text-xs font-medium">
-                    {workout.focus}
-                  </span>
                 </div>
               ))}
             </div>

@@ -76,10 +76,9 @@ export default async function EditWorkoutPage({
           <form action={updateWithId} className="space-y-5">
             <div className="grid gap-4 sm:grid-cols-2">
               <input
-                type="text"
-                name="title"
-                defaultValue={workout.title}
-                placeholder="Workout Title"
+                type="date"
+                name="workoutDate"
+                defaultValue={dateValue}
                 required
                 className={inputClass}
               />
@@ -92,14 +91,6 @@ export default async function EditWorkoutPage({
                 className={inputClass}
               />
             </div>
-
-            <input
-              type="date"
-              name="workoutDate"
-              defaultValue={dateValue}
-              required
-              className={inputClass}
-            />
 
             <div>
               <h3 className="text-sm font-medium text-slate-300 mb-3">Players</h3>

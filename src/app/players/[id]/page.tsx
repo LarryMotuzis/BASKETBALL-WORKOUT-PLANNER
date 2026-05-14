@@ -199,10 +199,10 @@ export default async function PlayerProfilePage({
               {workouts.map((workout) => (
                 <div key={workout.id} className="flex items-start justify-between rounded-lg border border-white/8 p-4 gap-4">
                   <div>
-                    <p className="font-medium text-slate-100">{workout.title}</p>
-                    <p className="text-xs text-slate-500 mt-0.5">
+                    <p className="font-medium text-slate-100">
                       {workout.workoutDate.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
                     </p>
+                    <p className="text-xs text-orange-400 mt-0.5">{workout.focus}</p>
                     {workout.workoutDrills.length > 0 && (
                       <p className="text-xs text-slate-500 mt-1">{workout.workoutDrills.map((wd) => wd.drill.name).join(" · ")}</p>
                     )}
